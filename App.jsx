@@ -14,6 +14,26 @@ import { colors, globalStyles } from "./styles/global";
 
 const Tab = createBottomTabNavigator();
 const TripsStack = createNativeStackNavigator();
+const AddStack = createNativeStackNavigator();
+
+function AddStackNavigator() {
+  return (
+    <AddStack.Navigator
+      screenOptions={{ contentStyle: { backgroundColor: colors.beige } }}
+    >
+      <AddStack.Screen
+        name="AddTrip"
+        component={AddTripScreen}
+        options={{ title: "Ny resa" }}
+      />
+      <AddStack.Screen
+        name="MapPicker"
+        component={MapPickerScreen}
+        options={{ title: "Välj plats" }}
+      />
+    </AddStack.Navigator>
+  );
+}
 
 function TripsStackNavigator() {
   return (
@@ -67,7 +87,7 @@ export default function App() {
           })}
         >
           <Tab.Screen name="Trips" component={TripsStackNavigator} />
-          <Tab.Screen name="Add" component={AddTripScreen} />
+          <Tab.Screen name="Add" component={AddStackNavigator} />
           <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>
       </View>
