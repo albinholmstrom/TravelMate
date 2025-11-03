@@ -48,6 +48,11 @@ export async function getTrips() {
   });
 }
 
+/** 👉 LÄGG TILL DET HÄR: **/
+async function saveTrips(trips) {
+  await AsyncStorage.setItem(KEY, JSON.stringify(trips));
+}
+
 // ADD
 export async function addTrip({
   title = "",

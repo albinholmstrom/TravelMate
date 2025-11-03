@@ -24,15 +24,15 @@ export default function MapPickerScreen({ route, navigation }) {
           longitude: 18.0686,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
-        } // Stockholm
+        }
   );
+
   const [marker, setMarker] = React.useState({
     latitude: region.latitude,
     longitude: region.longitude,
   });
 
   React.useEffect(() => {
-    // Om ingen initial plats – försök centrera på användaren (tyst)
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -52,7 +52,6 @@ export default function MapPickerScreen({ route, navigation }) {
   }, []);
 
   async function savePlace() {
-    // Reverse geocode (valfritt namn)
     let name = null;
     try {
       const rev = await Location.reverseGeocodeAsync({
@@ -64,11 +63,15 @@ export default function MapPickerScreen({ route, navigation }) {
         name = [r.city || r.subregion, r.country].filter(Boolean).join(", ");
     } catch {}
 
-    // Spara direkt på resan
-    await update(tripId, {
-      place: { lat: marker.latitude, lng: marker.longitude, name },
-    });
-    navigation.goBack();
+    const picked = { lat: marker.latitude, lng: marker.longitude, name };
+
+    if (tripId) {
+      await update(tripId, { place: picked });
+      navigation.goBack();
+    } else {
+      const target = route.params?.forScreen || "Add";
+      navigation.navigate(target, { pickedPlace: picked });
+    }
   }
 
   return (

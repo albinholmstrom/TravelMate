@@ -17,16 +17,27 @@ import SafeScreen from "../components/SafeScreen";
 import { fmt } from "../utils/date";
 import { colors } from "../styles/global";
 import * as Location from "expo-location";
+import { useRoute } from "@react-navigation/native";
+import PlaceSelector from "../components/PlaceSelector";
 
 export default function AddTripScreen({ navigation }) {
+  const route = useRoute();
   const { create } = useTrips();
   const [title, setTitle] = React.useState("");
   const [notes, setNotes] = React.useState("");
-  const [start, setStart] = React.useState(null); // ISO-string eller null
+  const [start, setStart] = React.useState(null);
   const [end, setEnd] = React.useState(null);
   const [showStart, setShowStart] = React.useState(false);
   const [showEnd, setShowEnd] = React.useState(false);
   const [place, setPlace] = React.useState(null);
+
+  // fångar upp plats vald från kartan
+  React.useEffect(() => {
+    if (route.params?.pickedPlace) {
+      setPlace(route.params.pickedPlace);
+      navigation.setParams?.({ pickedPlace: undefined });
+    }
+  }, [route.params?.pickedPlace]);
 
   function resetForm() {
     setTitle("");
@@ -41,26 +52,13 @@ export default function AddTripScreen({ navigation }) {
     if (date) {
       const iso = date.toISOString();
       setStart(iso);
-      // Om end finns och end < start → nolla end
       if (end && new Date(end) < date) setEnd(null);
     }
   };
+
   const onPickEnd = (_, date) => {
     setShowEnd(false);
     if (date) setEnd(date.toISOString());
-  };
-
-  const onSave = async () => {
-    if (!title.trim()) return Alert.alert("Titel saknas", "Skriv en titel.");
-    if (start && end && new Date(end) < new Date(start)) {
-      return Alert.alert(
-        "Ogiltiga datum",
-        "Slutdatum kan inte vara före startdatum."
-      );
-    }
-    await create({ title, notes, dates: { start, end }, place });
-    resetForm();
-    navigation.navigate("Trips");
   };
 
   async function useMyLocation() {
@@ -83,6 +81,26 @@ export default function AddTripScreen({ navigation }) {
     setPlace({ lat: pos.coords.latitude, lng: pos.coords.longitude, name });
   }
 
+  function openMapPicker() {
+    navigation.navigate("MapPicker", {
+      initial: place ?? null,
+      forScreen: "Add",
+    });
+  }
+
+  const onSave = async () => {
+    if (!title.trim()) return Alert.alert("Titel saknas", "Skriv en titel.");
+    if (start && end && new Date(end) < new Date(start)) {
+      return Alert.alert(
+        "Ogiltiga datum",
+        "Slutdatum kan inte vara före startdatum."
+      );
+    }
+    await create({ title, notes, dates: { start, end }, place });
+    resetForm();
+    navigation.navigate("Trips");
+  };
+
   return (
     <SafeScreen>
       <KeyboardAvoidingView
@@ -102,7 +120,6 @@ export default function AddTripScreen({ navigation }) {
             returnKeyType="next"
           />
 
-          {/* Startdatum */}
           <Pressable
             style={[styles.input, { justifyContent: "center" }]}
             onPress={() => setShowStart(true)}
@@ -120,7 +137,6 @@ export default function AddTripScreen({ navigation }) {
             />
           )}
 
-          {/* Slutdatum */}
           <Pressable
             style={[styles.input, { justifyContent: "center" }]}
             onPress={() => setShowEnd(true)}
@@ -148,16 +164,12 @@ export default function AddTripScreen({ navigation }) {
             placeholderTextColor="#888"
           />
 
-          <View style={{ gap: 8 }}>
-            <AppButton title="Min position" onPress={useMyLocation} />
-            {place && (
-              <Text style={{ color: colors.darkBlue }}>
-                Vald plats:{" "}
-                {place.name ??
-                  `${place.lat.toFixed(4)}, ${place.lng.toFixed(4)}`}
-              </Text>
-            )}
-          </View>
+          <PlaceSelector
+            place={place}
+            onUseMyLocation={useMyLocation}
+            onPickOnMap={openMapPicker}
+            onClear={() => setPlace(null)}
+          />
 
           <View style={{ marginTop: 8 }}>
             <AppButton title="Spara resa" onPress={onSave} />

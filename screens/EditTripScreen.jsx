@@ -1,4 +1,3 @@
-// /screens/EditTripScreen.jsx
 import React from "react";
 import {
   KeyboardAvoidingView,
@@ -20,6 +19,7 @@ import { colors } from "../styles/global";
 import { useTrips } from "../hooks/useTrips";
 import { fmt } from "../utils/date";
 import { useNavigation } from "@react-navigation/native";
+import PlaceSelector from "../components/PlaceSelector";
 
 export default function EditTripScreen({ route }) {
   const { tripId } = route.params;
@@ -27,7 +27,6 @@ export default function EditTripScreen({ route }) {
   const { trips, update } = useTrips();
   const trip = trips.find((t) => t.id === tripId) || null;
 
-  // Lokal state initieras tomt och fylls när trip finns
   const [title, setTitle] = React.useState("");
   const [notes, setNotes] = React.useState("");
   const [start, setStart] = React.useState(null);
@@ -36,18 +35,14 @@ export default function EditTripScreen({ route }) {
   const [showStart, setShowStart] = React.useState(false);
   const [showEnd, setShowEnd] = React.useState(false);
 
-  // När trip laddas in (eller byter), fyll formuläret
   React.useEffect(() => {
     if (trip) {
       setTitle(trip.title || "");
       setNotes(trip.notes || "");
       setStart(trip.dates?.start ?? null);
       setEnd(trip.dates?.end ?? null);
+      setPlace(trip.place ?? null);
     }
-  }, [trip?.id]); // trigga bara när det är just den resan
-
-  React.useEffect(() => {
-    if (trip) setPlace(trip.place ?? null);
   }, [trip?.id]);
 
   const onPickStart = (_, date) => {
@@ -58,6 +53,7 @@ export default function EditTripScreen({ route }) {
       if (end && new Date(end) < date) setEnd(null);
     }
   };
+
   const onPickEnd = (_, date) => {
     setShowEnd(false);
     if (date) setEnd(date.toISOString());
@@ -102,12 +98,11 @@ export default function EditTripScreen({ route }) {
       title: title.trim(),
       notes: notes.trim(),
       dates: { start, end },
-      place, // <— spara ev. ändrad plats från “Min position”
+      place,
     });
     navigation.goBack();
   };
 
-  // --- Render: visa loader / not found efter att hooks körts ---
   if (!trip) {
     return (
       <SafeScreen>
@@ -184,6 +179,13 @@ export default function EditTripScreen({ route }) {
             onChangeText={setNotes}
             multiline
             placeholderTextColor="#888"
+          />
+
+          <PlaceSelector
+            place={place ?? trip.place ?? null}
+            onUseMyLocation={useMyLocation}
+            onPickOnMap={openMapPicker}
+            onClear={() => setPlace(null)}
           />
 
           <View style={{ marginTop: 8 }}>
