@@ -13,59 +13,59 @@ export default function SettingsScreen() {
   const onExport = async () => {
     try {
       await exportTripsToJsonFile();
-      // Delningsarket öppnas – inget mer behövs
+      // Share sheet opens automatically – nothing more needed
     } catch (e) {
-      Alert.alert("Export misslyckades", String(e?.message ?? e));
+      Alert.alert("Export failed", String(e?.message ?? e));
     }
   };
 
   const onImport = async () => {
     try {
       const { imported } = await importTripsFromJsonFile();
-      Alert.alert("Import klar", `Importerade ${imported} resor.`);
+      Alert.alert("Import complete", `Imported ${imported} trips.`);
     } catch (e) {
-      Alert.alert("Import misslyckades", String(e?.message ?? e));
+      Alert.alert("Import failed", String(e?.message ?? e));
     }
   };
 
   const onClear = () => {
-    Alert.alert("Töm alla resor?", "Detta går inte att ångra.", [
-      { text: "Avbryt", style: "cancel" },
+    Alert.alert("Delete all trips?", "This action cannot be undone.", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Töm",
+        text: "Delete",
         style: "destructive",
         onPress: async () => {
           await clearTrips();
-          Alert.alert("Klart", "Alla resor är borttagna.");
+          Alert.alert("Done", "All trips have been deleted.");
         },
       },
     ]);
   };
 
   return (
-    <SafeScreen>
+    <SafeScreen includeTopInset>
       <View style={styles.container}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Datahantering</Text>
+          <Text style={styles.sectionTitle}>Data Management</Text>
 
           <View style={styles.row}>
-            <AppButton title="Exportera resor (JSON)" onPress={onExport} />
+            <AppButton title="Export trips (JSON)" onPress={onExport} />
             <Text style={styles.hint}>
-              Dela/backup via filer, mail, AirDrop m.m.
+              Export a backup as a JSON file via Files, email, AirDrop, etc.
             </Text>
           </View>
 
           <View style={styles.row}>
-            <AppButton title="Importera resor (JSON)" onPress={onImport} />
+            <AppButton title="Import trips (JSON)" onPress={onImport} />
             <Text style={styles.hint}>
-              Välj en tidigare exporterad JSON-fil.
+              Import from a previously exported JSON file.
             </Text>
           </View>
 
           <View style={styles.row}>
-            <AppButton title="Töm alla resor" onPress={onClear} />
+            <AppButton title="Delete all trips" onPress={onClear} />
             <Text style={styles.hint}>
-              Raderar allt lokalt sparat (kräver bekräftelse).
+              Removes all locally stored trips (requires confirmation).
             </Text>
           </View>
         </View>

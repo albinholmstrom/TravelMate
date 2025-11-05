@@ -24,12 +24,12 @@ function AddStackNavigator() {
       <AddStack.Screen
         name="AddTrip"
         component={AddTripScreen}
-        options={{ title: "Ny resa" }}
+        options={{ title: "New Trip" }}
       />
       <AddStack.Screen
         name="MapPicker"
         component={MapPickerScreen}
-        options={{ title: "Välj plats" }}
+        options={{ title: "Select Location" }}
       />
     </AddStack.Navigator>
   );
@@ -48,17 +48,17 @@ function TripsStackNavigator() {
       <TripsStack.Screen
         name="TripDetails"
         component={TripDetailsScreen}
-        options={{ title: "Details" }}
+        options={{ title: "Trip Details" }}
       />
       <TripsStack.Screen
         name="EditTrip"
         component={EditTripScreen}
-        options={{ title: "Edit trip" }}
+        options={{ title: "Edit Trip" }}
       />
       <TripsStack.Screen
         name="MapPicker"
         component={MapPickerScreen}
-        options={{ title: "Välj plats" }}
+        options={{ title: "Select Location" }}
       />
     </TripsStack.Navigator>
   );
@@ -82,7 +82,7 @@ export default function App() {
                 name = focused ? "settings" : "settings-outline";
               return <Ionicons name={name} size={size} />;
             },
-            sceneStyle: { backgroundColor: colors.bg }, // (RN 0.76+) om tillgängligt
+            sceneStyle: { backgroundColor: colors.bg }, // (RN 0.76+) if supported
             tabBarStyle: { backgroundColor: "#fff" },
           })}
         >

@@ -1,10 +1,11 @@
 /*
-  Första gången jag arbetar med ett svepbart galleri. Därför användes mycket ChatGPT till denna sektion av kod, då jag inte kunde gå tillbaks
-  till tidigare erfarenheter eller exempelprojekt.
+  First time implementing a swipeable full-screen gallery.
+  I used ChatGPT for assistance with this section, since I didn’t have
+  previous projects or codebases to refer back to for this feature.
 */
 
 // /components/FullScreenGallery.jsx
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -25,10 +26,10 @@ export default function FullScreenGallery({
   const listRef = useRef(null);
   const [index, setIndex] = useState(startIndex);
 
-  // Hoppa till startIndex när modalen öppnas
-  React.useEffect(() => {
+  // Jump to the selected image when the modal opens
+  useEffect(() => {
     if (listRef.current && startIndex > 0) {
-      // scrollToIndex kräver getItemLayout → se nedan
+      // scrollToIndex requires getItemLayout → see below
       setTimeout(() => {
         try {
           listRef.current.scrollToIndex({ index: startIndex, animated: false });
@@ -46,7 +47,7 @@ export default function FullScreenGallery({
   return (
     <Modal visible animationType="fade" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: "black" }}>
-        {/* Stäng-knapp */}
+        {/* Close button */}
         <Pressable
           onPress={onClose}
           style={{
@@ -60,7 +61,7 @@ export default function FullScreenGallery({
           <Text style={{ color: "white", fontSize: 28 }}>✕</Text>
         </Pressable>
 
-        {/* Svepbar lista */}
+        {/* Swipeable gallery */}
         <FlatList
           ref={listRef}
           data={photos}
@@ -93,7 +94,7 @@ export default function FullScreenGallery({
           )}
         />
 
-        {/* Pager-text */}
+        {/* Pager indicator */}
         <View
           style={{
             position: "absolute",

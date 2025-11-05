@@ -4,7 +4,6 @@ import {
   Platform,
   ScrollView,
   View,
-  TextInput,
   Alert,
   Pressable,
   Text,
@@ -20,6 +19,7 @@ import { useTrips } from "../hooks/useTrips";
 import { fmt } from "../utils/date";
 import { useNavigation } from "@react-navigation/native";
 import PlaceSelector from "../components/PlaceSelector";
+import AppInput from "../components/AppInput";
 
 export default function EditTripScreen({ route }) {
   const { tripId } = route.params;
@@ -62,7 +62,7 @@ export default function EditTripScreen({ route }) {
   async function useMyLocation() {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Behörighet saknas", "Ge appen tillgång till plats.");
+      Alert.alert("Permission required", "Please allow location access.");
       return;
     }
     const pos = await Location.getCurrentPositionAsync({});
@@ -87,11 +87,12 @@ export default function EditTripScreen({ route }) {
   }
 
   const onSave = async () => {
-    if (!title.trim()) return Alert.alert("Titel saknas", "Skriv en titel.");
+    if (!title.trim())
+      return Alert.alert("Missing title", "Please enter a trip title.");
     if (start && end && new Date(end) < new Date(start)) {
       return Alert.alert(
-        "Ogiltiga datum",
-        "Slutdatum kan inte vara före startdatum."
+        "Invalid dates",
+        "End date can’t be before the start date."
       );
     }
     await update(tripId, {
@@ -111,7 +112,7 @@ export default function EditTripScreen({ route }) {
         >
           <ActivityIndicator />
           <Text style={{ marginTop: 8, color: colors.darkBlue }}>
-            Laddar resa…
+            Loading trip…
           </Text>
         </View>
       </SafeScreen>
@@ -128,12 +129,10 @@ export default function EditTripScreen({ route }) {
           contentContainerStyle={{ padding: 16, gap: 12 }}
           keyboardShouldPersistTaps="handled"
         >
-          <TextInput
-            style={styles.input}
-            placeholder="Titel"
+          <AppInput
+            placeholder="Title (e.g., London weekend)"
             value={title}
             onChangeText={setTitle}
-            placeholderTextColor="#888"
             returnKeyType="next"
           />
 
@@ -142,7 +141,7 @@ export default function EditTripScreen({ route }) {
             onPress={() => setShowStart(true)}
           >
             <Text style={{ color: start ? colors.darkBlue : "#888" }}>
-              {start ? `Start: ${fmt(start)}` : "Välj startdatum"}
+              {start ? `Start: ${fmt(start)}` : "Select start date"}
             </Text>
           </Pressable>
           {showStart && (
@@ -159,7 +158,7 @@ export default function EditTripScreen({ route }) {
             onPress={() => setShowEnd(true)}
           >
             <Text style={{ color: end ? colors.darkBlue : "#888" }}>
-              {end ? `Slut: ${fmt(end)}` : "Välj slutdatum (valfritt)"}
+              {end ? `End: ${fmt(end)}` : "Select end date (optional)"}
             </Text>
           </Pressable>
           {showEnd && (
@@ -172,13 +171,11 @@ export default function EditTripScreen({ route }) {
             />
           )}
 
-          <TextInput
-            style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-            placeholder="Anteckningar"
+          <AppInput
+            placeholder="Notes"
             value={notes}
             onChangeText={setNotes}
             multiline
-            placeholderTextColor="#888"
           />
 
           <PlaceSelector
@@ -189,7 +186,7 @@ export default function EditTripScreen({ route }) {
           />
 
           <View style={{ marginTop: 8 }}>
-            <AppButton title="Spara ändringar" onPress={onSave} />
+            <AppButton title="Save changes" onPress={onSave} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

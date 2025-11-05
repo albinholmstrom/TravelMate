@@ -19,6 +19,7 @@ import { colors } from "../styles/global";
 import * as Location from "expo-location";
 import { useRoute } from "@react-navigation/native";
 import PlaceSelector from "../components/PlaceSelector";
+import AppInput from "../components/AppInput";
 
 export default function AddTripScreen({ navigation }) {
   const route = useRoute();
@@ -31,7 +32,7 @@ export default function AddTripScreen({ navigation }) {
   const [showEnd, setShowEnd] = React.useState(false);
   const [place, setPlace] = React.useState(null);
 
-  // fångar upp plats vald från kartan
+  // Capture place selected from the map
   React.useEffect(() => {
     if (route.params?.pickedPlace) {
       setPlace(route.params.pickedPlace);
@@ -64,7 +65,7 @@ export default function AddTripScreen({ navigation }) {
   async function useMyLocation() {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Behörighet saknas", "Ge appen tillgång till plats.");
+      Alert.alert("Permission required", "Please allow location access.");
       return;
     }
     const pos = await Location.getCurrentPositionAsync({});
@@ -84,16 +85,18 @@ export default function AddTripScreen({ navigation }) {
   function openMapPicker() {
     navigation.navigate("MapPicker", {
       initial: place ?? null,
-      forScreen: "Add",
+      forScreen: "AddTrip",
     });
   }
 
   const onSave = async () => {
-    if (!title.trim()) return Alert.alert("Titel saknas", "Skriv en titel.");
+    if (!title.trim()) {
+      return Alert.alert("Missing title", "Please enter a trip title.");
+    }
     if (start && end && new Date(end) < new Date(start)) {
       return Alert.alert(
-        "Ogiltiga datum",
-        "Slutdatum kan inte vara före startdatum."
+        "Invalid dates",
+        "End date can’t be before the start date."
       );
     }
     await create({ title, notes, dates: { start, end }, place });
@@ -111,12 +114,10 @@ export default function AddTripScreen({ navigation }) {
           contentContainerStyle={{ padding: 16, gap: 12 }}
           keyboardShouldPersistTaps="handled"
         >
-          <TextInput
-            style={styles.input}
-            placeholder="Titel (t.ex. London weekend)"
+          <AppInput
+            placeholder="Title (e.g., London weekend)"
             value={title}
             onChangeText={setTitle}
-            placeholderTextColor="#888"
             returnKeyType="next"
           />
 
@@ -125,7 +126,7 @@ export default function AddTripScreen({ navigation }) {
             onPress={() => setShowStart(true)}
           >
             <Text style={{ color: start ? colors.darkBlue : "#888" }}>
-              {start ? `Start: ${fmt(start)}` : "Välj startdatum"}
+              {start ? `Start: ${fmt(start)}` : "Select start date"}
             </Text>
           </Pressable>
           {showStart && (
@@ -142,7 +143,7 @@ export default function AddTripScreen({ navigation }) {
             onPress={() => setShowEnd(true)}
           >
             <Text style={{ color: end ? colors.darkBlue : "#888" }}>
-              {end ? `Slut: ${fmt(end)}` : "Välj slutdatum (valfritt)"}
+              {end ? `End: ${fmt(end)}` : "Select end date (optional)"}
             </Text>
           </Pressable>
           {showEnd && (
@@ -155,13 +156,11 @@ export default function AddTripScreen({ navigation }) {
             />
           )}
 
-          <TextInput
-            style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-            placeholder="Anteckningar"
+          <AppInput
+            placeholder="Notes"
             value={notes}
             onChangeText={setNotes}
             multiline
-            placeholderTextColor="#888"
           />
 
           <PlaceSelector
@@ -172,7 +171,7 @@ export default function AddTripScreen({ navigation }) {
           />
 
           <View style={{ marginTop: 8 }}>
-            <AppButton title="Spara resa" onPress={onSave} />
+            <AppButton title="Save trip" onPress={onSave} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,23 +1,33 @@
+// /components/SafeScreen.jsx
 import React from "react";
-import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors } from "../styles/global";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { globalStyles } from "../styles/global";
 
-export default function SafeScreen({ children, style }) {
-  const insets = useSafeAreaInsets();
+/**
+ * SafeScreen is a layout wrapper that applies safe area insets where needed.
+ *
+ * includeTopInset = false  -> no top inset (recommended for screens with a stack header)
+ * includeTopInset = true   -> adds top inset (for screens without a header, e.g. tab screens)
+ *
+ * You can override the behavior entirely by providing a custom `edges` array.
+ * Example:
+ *   <SafeScreen edges={['top', 'bottom']} />
+ */
+export default function SafeScreen({
+  children,
+  style,
+  includeTopInset = false,
+  edges,
+}) {
+  const computedEdges =
+    edges ??
+    (includeTopInset
+      ? ["top", "left", "right", "bottom"]
+      : ["left", "right", "bottom"]);
+
   return (
-    <View
-      style={[
-        {
-          flex: 1,
-          backgroundColor: colors.beige,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-        style,
-      ]}
-    >
+    <SafeAreaView edges={computedEdges} style={[globalStyles.screen, style]}>
       {children}
-    </View>
+    </SafeAreaView>
   );
 }

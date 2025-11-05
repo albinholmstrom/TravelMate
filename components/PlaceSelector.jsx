@@ -15,9 +15,9 @@ export default function PlaceSelector({
         {
           options: [
             "Cancel",
-            "My position",
-            "Place on map",
-            place ? "Clear space" : null,
+            "Use my location",
+            "Select on map",
+            place ? "Clear location" : null,
           ].filter(Boolean),
           cancelButtonIndex: 0,
           userInterfaceStyle: "light",
@@ -30,13 +30,13 @@ export default function PlaceSelector({
       );
     } else {
       Alert.alert(
-        "Välj plats",
+        "Select Location",
         "",
         [
-          { text: "My position", onPress: onUseMyLocation },
-          { text: "Place on map", onPress: onPickOnMap },
+          { text: "Use my location", onPress: onUseMyLocation },
+          { text: "Select on map", onPress: onPickOnMap },
           place
-            ? { text: "Clear space", style: "destructive", onPress: onClear }
+            ? { text: "Clear location", style: "destructive", onPress: onClear }
             : undefined,
           { text: "Cancel", style: "cancel" },
         ].filter(Boolean)
@@ -46,14 +46,15 @@ export default function PlaceSelector({
 
   return (
     <View style={{ gap: 8, marginTop: 8 }}>
-      <AppButton title="Välj plats" onPress={openMenu} />
+      <AppButton title="Select Location" onPress={openMenu} />
+
       {place ? (
         <Text style={{ color: colors.darkBlue }}>
-          Vald plats:{" "}
+          Selected:{" "}
           {place.name ?? `${place.lat.toFixed(4)}, ${place.lng.toFixed(4)}`}
         </Text>
       ) : (
-        <Text style={{ color: "#666" }}>Ingen plats vald</Text>
+        <Text style={{ color: "#666" }}>No location selected</Text>
       )}
     </View>
   );

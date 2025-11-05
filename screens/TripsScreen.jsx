@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 export default function TripsScreen() {
   return (
     <View style={styles.container}>
-      <Text>Trips (lista över resor)</Text>
+      <Text>Trips (list of trips)</Text>
     </View>
   );
 }
