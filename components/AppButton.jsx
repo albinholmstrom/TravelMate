@@ -8,11 +8,12 @@ export default function AppButton({
   title,
   onPress,
   loading = false,
-  variant = "primary", // "primary" | "secondary" | "ghost"
+  variant = "primary",
   style,
   textStyle,
   disabled,
 }) {
+  //Base styles for the button
   const base = {
     borderRadius: radius.xl,
     paddingVertical: spacing.sm,
@@ -36,6 +37,7 @@ export default function AppButton({
     },
   };
 
+  //determine text color based on variant
   const colorByVariant =
     variant === "primary"
       ? "#fff"
@@ -46,7 +48,7 @@ export default function AppButton({
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled || loading} //button is disabled if loading or if explicitly disabled
       style={({ pressed }) => [
         base,
         variants[variant],

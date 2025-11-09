@@ -1,11 +1,17 @@
 // /services/weather.js
+//service for fetching and caching weather dataa from OpenWeather API.
+//provides current weather and short-term forecast with simple in-memory caching.
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY;
 const BASE = "https://api.openweathermap.org/data/2.5";
+
+//cache durations
 const TTL_CURRENT_MS = 10 * 60 * 1000; // 10 min
 const TTL_FORECAST_MS = 30 * 60 * 1000; // 30 min
 
+//buidl a stable cache key based on lat/lng rounded to 3 decimals
 function keyCurrent(lat, lng) {
   return `WEATHER_CURRENT_${lat.toFixed(3)}_${lng.toFixed(3)}`;
 }
@@ -13,6 +19,7 @@ function keyForecast(lat, lng) {
   return `WEATHER_FORECAST_${lat.toFixed(3)}_${lng.toFixed(3)}`;
 }
 
+//attempt to read and return cached data if not expired
 async function getCached(key, ttlMs) {
   const raw = await AsyncStorage.getItem(key);
   if (!raw) return null;
@@ -23,19 +30,21 @@ async function getCached(key, ttlMs) {
   return null;
 }
 
+//save data with timestamp to storage.
 async function setCached(key, data) {
   await AsyncStorage.setItem(key, JSON.stringify({ at: Date.now(), data }));
 }
 
+//fetch current weather data for given lat/lng
 export async function fetchCurrentWeather(lat, lng) {
-  if (!API_KEY) throw new Error("Saknar OpenWeather API Key");
+  if (!API_KEY) throw new Error("Missing OpenWeather API Key");
   const cacheKey = keyCurrent(lat, lng);
   const cached = await getCached(cacheKey, TTL_CURRENT_MS);
   if (cached) return cached;
 
   const url = `${BASE}/weather?lat=${lat}&lon=${lng}&units=metric&appid=${API_KEY}&lang=sv`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Kunde inte hämta väder");
+  if (!res.ok) throw new Error("Could not fetch current weather");
   const json = await res.json();
 
   const data = {
@@ -48,19 +57,18 @@ export async function fetchCurrentWeather(lat, lng) {
   return data;
 }
 
+//fetch forecast (3h, intervals for 5d) and return normalized list
 export async function fetchForecast(lat, lng) {
-  if (!API_KEY) throw new Error("Saknar OpenWeather API Key");
+  if (!API_KEY) throw new Error("Missing OpenWeather API Key");
   const cacheKey = keyForecast(lat, lng);
   const cached = await getCached(cacheKey, TTL_FORECAST_MS);
   if (cached) return cached;
 
-  // 5-dygn / 3h prognos
   const url = `${BASE}/forecast?lat=${lat}&lon=${lng}&units=metric&appid=${API_KEY}&lang=sv`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Kunde inte hämta prognos");
+  if (!res.ok) throw new Error("Could not fetch weather forecast");
   const json = await res.json();
 
-  // Normalisera: [{dt, temp, icon, description}]
   const items = (json.list || []).map((it) => ({
     dt: it.dt * 1000,
     temp: Math.round(it.main?.temp ?? 0),
@@ -72,8 +80,6 @@ export async function fetchForecast(lat, lng) {
   return items;
 }
 
-// Hjälp att mappa openweather ikon -> url (om du vill visa bild)
-// Alternativt kan du mappa till Ionicons i UI-komponent.
 export function iconUrl(code) {
   return `https://openweathermap.org/img/wn/${code}@2x.png`;
 }

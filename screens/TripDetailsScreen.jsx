@@ -1,4 +1,7 @@
 // /screens/TripDetailsScreen.jsx
+//displayes the full details of a specific trip including title, dates, location, notes, current weather, forecast, and photos.
+//supports opening an image gallery for trip photos and navigating to the EditTripScreen.
+
 import { View, Text, Alert } from "react-native";
 import styles from "../styles/tripDetails";
 import { useTrips } from "../hooks/useTrips";
@@ -12,8 +15,6 @@ import * as FileSystem from "expo-file-system/legacy";
 import PhotosGrid from "../components/PhotosGrid";
 import { colors } from "../styles/global";
 import FullScreenGallery from "../components/FullScreenGallery";
-
-// NEW
 import WeatherBadge from "../components/WeatherBadge";
 import ForecastStrip from "../components/ForecastStrip";
 
@@ -91,6 +92,7 @@ export default function TripDetailsScreen({ route }) {
     }
   }
 
+  //handle photo press to open gallery
   function onPressPhoto(photo) {
     const index = trip.photos.findIndex((p) => p.uri === photo.uri);
     setStartIndex(index >= 0 ? index : 0);

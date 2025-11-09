@@ -1,3 +1,7 @@
+//PlaceSelector.jsx
+//a UI component that let's the user choose a location through different methods.
+//opens a platform-specific action menu to choose between using current location, picking on map, or clearing selection.
+
 import React from "react";
 import { View, Text, Platform, ActionSheetIOS, Alert } from "react-native";
 import AppButton from "./AppButton";
@@ -9,15 +13,17 @@ export default function PlaceSelector({
   onPickOnMap,
   onClear,
 }) {
+  //opens a location selection menu, using iOS ActionSheet or Android Alert
   function openMenu() {
     if (Platform.OS === "ios") {
+      // iOS Action Sheet with dymanic options depending on whether a place is selected
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options: [
             "Cancel",
             "Use my location",
             "Select on map",
-            place ? "Clear location" : null,
+            place ? "Clear location" : null, //only show clear if the place exists
           ].filter(Boolean),
           cancelButtonIndex: 0,
           userInterfaceStyle: "light",
@@ -29,6 +35,7 @@ export default function PlaceSelector({
         }
       );
     } else {
+      // Android Alert dialog with similar options
       Alert.alert(
         "Select Location",
         "",

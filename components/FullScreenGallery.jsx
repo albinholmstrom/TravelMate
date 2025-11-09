@@ -1,10 +1,8 @@
-/*
-  First time implementing a swipeable full-screen gallery.
-  I used ChatGPT for assistance with this section, since I didn’t have
-  previous projects or codebases to refer back to for this feature.
-*/
-
 // /components/FullScreenGallery.jsx
+
+//a full-screen modal gallery component that displays a collection of photos.
+//supports swipe navigation between images and shows the current image index.
+
 import React, { useRef, useState, useEffect } from "react";
 import {
   Modal,
@@ -26,18 +24,21 @@ export default function FullScreenGallery({
   const listRef = useRef(null);
   const [index, setIndex] = useState(startIndex);
 
-  // Jump to the selected image when the modal opens
+  //when opening, jump to the selected image without animation
+  // Note: scrollToIndex requires getItemLayout to be defined.
   useEffect(() => {
     if (listRef.current && startIndex > 0) {
-      // scrollToIndex requires getItemLayout → see below
       setTimeout(() => {
         try {
           listRef.current.scrollToIndex({ index: startIndex, animated: false });
-        } catch {}
+        } catch {
+          //silent ignore if index is out of range
+        }
       }, 0);
     }
   }, [startIndex]);
 
+  //track which item is visible to update the pager indicator
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems?.length > 0 && viewableItems[0]?.index != null) {
       setIndex(viewableItems[0].index);

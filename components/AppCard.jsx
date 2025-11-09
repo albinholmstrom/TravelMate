@@ -4,6 +4,7 @@ import { View } from "react-native";
 import { colors, globalStyles } from "../styles/global";
 import { radius, spacing, shadow } from "../styles/theme";
 
+// A reusable card component for displaying content with consistent styling
 export default function AppCard({ style, children }) {
   return (
     <View

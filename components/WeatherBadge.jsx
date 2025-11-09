@@ -1,4 +1,7 @@
 // /components/WeatherBadge.jsx
+//a small UI component that displays the current weather for a given place.
+//uses the weather hook to fetch current conditions and shows an icon and temperature.
+
 import React from "react";
 import { View, Text, Image, ActivityIndicator } from "react-native";
 import { useWeather } from "../hooks/useWeather";
@@ -8,6 +11,7 @@ import { iconUrl } from "../services/weather";
 export default function WeatherBadge({ place, compact = true }) {
   const { current, loading } = useWeather(place);
 
+  //if no valid place provided, show placeholder
   if (!place?.lat || !place?.lng) {
     return (
       <View style={{ alignItems: "center", justifyContent: "center" }}>
@@ -16,6 +20,7 @@ export default function WeatherBadge({ place, compact = true }) {
     );
   }
 
+  //show a loading indicator while fetching weather
   if (loading && !current) {
     return (
       <View style={{ alignItems: "center", justifyContent: "center" }}>
@@ -24,6 +29,7 @@ export default function WeatherBadge({ place, compact = true }) {
     );
   }
 
+  //if no current weather data, don't render anything
   if (!current) return null;
 
   return (

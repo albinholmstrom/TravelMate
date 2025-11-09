@@ -11,3 +11,5 @@ export default function TripsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center" },
 });
+
+//remnant code from previous edits

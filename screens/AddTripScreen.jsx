@@ -1,3 +1,7 @@
+//AddTripScreen.jsx
+//a screen  that lets the user create a new trip by entering title, notes, picking start & end dates, and selecting a place via current location or map.
+//performs basic validation and persists the trip using the useTrips hook.
+
 import React from "react";
 import {
   KeyboardAvoidingView,
@@ -32,7 +36,7 @@ export default function AddTripScreen({ navigation }) {
   const [showEnd, setShowEnd] = React.useState(false);
   const [place, setPlace] = React.useState(null);
 
-  // Capture place selected from the map
+  // Capture place selected on MapPicker and clear the param afterwards.
   React.useEffect(() => {
     if (route.params?.pickedPlace) {
       setPlace(route.params.pickedPlace);
@@ -40,6 +44,7 @@ export default function AddTripScreen({ navigation }) {
     }
   }, [route.params?.pickedPlace]);
 
+  //reset form fields to initial state
   function resetForm() {
     setTitle("");
     setNotes("");
@@ -48,20 +53,24 @@ export default function AddTripScreen({ navigation }) {
     setPlace(null);
   }
 
+  //handle start date selection
   const onPickStart = (_, date) => {
     setShowStart(false);
     if (date) {
       const iso = date.toISOString();
       setStart(iso);
+      //if end is before the chosen start, clear it to avoid invalid range
       if (end && new Date(end) < date) setEnd(null);
     }
   };
 
+  //handle end date selection
   const onPickEnd = (_, date) => {
     setShowEnd(false);
     if (date) setEnd(date.toISOString());
   };
 
+  //ask for permission, get current GPS position, reverse-geocode a human readable name, and set as place
   async function useMyLocation() {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -82,6 +91,7 @@ export default function AddTripScreen({ navigation }) {
     setPlace({ lat: pos.coords.latitude, lng: pos.coords.longitude, name });
   }
 
+  //navigate to MapPicker screen to select a place
   function openMapPicker() {
     navigation.navigate("MapPicker", {
       initial: place ?? null,
@@ -89,6 +99,7 @@ export default function AddTripScreen({ navigation }) {
     });
   }
 
+  //validate and persist the new trip
   const onSave = async () => {
     if (!title.trim()) {
       return Alert.alert("Missing title", "Please enter a trip title.");

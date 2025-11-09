@@ -1,4 +1,7 @@
 // /storage/trips.js
+// handles storage of trips using AsyncStorage.
+//handles import, export, and photo management.
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
@@ -6,7 +9,8 @@ import * as DocumentPicker from "expo-document-picker";
 
 const KEY = "TRAVELMATE_TRIPS_V1";
 
-/** Helpers */
+//helper functions
+//normalizes date objects to alywayys ahve the same structure. Ensures both start and end are strings or null.
 function normalizeDates(d) {
   if (!d || typeof d !== "object") return { start: null, end: null };
   return {
@@ -15,6 +19,7 @@ function normalizeDates(d) {
   };
 }
 
+//normalizes the place object to enure valid coordinates and name. supports different property names like (lat/lng, lon, longitude)
 function normalizePlace(p) {
   if (!p || typeof p !== "object") return null;
   const lat = Number(p.lat);
@@ -24,7 +29,9 @@ function normalizePlace(p) {
   return null;
 }
 
-// GET (migration för gamla dates redan kvar)
+//Get & Save
+
+//retrieve all trips from storage
 export async function getTrips() {
   const json = await AsyncStorage.getItem(KEY);
   const arr = json ? JSON.parse(json) : [];
@@ -48,12 +55,14 @@ export async function getTrips() {
   });
 }
 
-/** 👉 LÄGG TILL DET HÄR: **/
+//save all trips to storage
 async function saveTrips(trips) {
   await AsyncStorage.setItem(KEY, JSON.stringify(trips));
 }
 
-// ADD
+//CRUD Operations
+
+//adds a new trip with normalized data and a unique id
 export async function addTrip({
   title = "",
   dates = {},
@@ -74,7 +83,7 @@ export async function addTrip({
   return newTrip;
 }
 
-// UPDATE
+//updates and existing trip based on its ID and a patch object with new data
 export async function updateTrip(id, patch) {
   const trips = await getTrips();
   const next = trips.map((t) => {
@@ -89,19 +98,23 @@ export async function updateTrip(id, patch) {
   return next.find((t) => t.id === id);
 }
 
+//removes a trip by its ID
 export async function removeTrip(id) {
   const trips = await getTrips();
   const next = trips.filter((t) => t.id !== id);
   await saveTrips(next);
 }
 
+//clears all trips from storage
 export async function clearTrips() {
   await AsyncStorage.removeItem(KEY);
 }
 
-/** --------- Export / Import ---------- **/
+//Export & Import
+
+//exports all trips to a JSON file and shares it using the device's sharing options
 export async function exportTripsToJsonFile() {
-  const trips = await getTrips(); // redan migrerade/normaliserade
+  const trips = await getTrips();
   const json = JSON.stringify(trips, null, 2);
 
   const fileUri =
@@ -116,6 +129,7 @@ export async function exportTripsToJsonFile() {
   return fileUri;
 }
 
+//imports trips from a selected JSON file, merging them with existing trips while avoiding duplicates
 export async function importTripsFromJsonFile() {
   const res = await DocumentPicker.getDocumentAsync({
     type: "application/json",
@@ -139,11 +153,9 @@ export async function importTripsFromJsonFile() {
     throw new Error("Ogiltig JSON-fil (förväntade en array av resor).");
   }
 
-  // Läs befintliga och förbered id-uppsättning för att undvika dubbletter
-  const current = await getTrips(); // redan migrerade/normaliserade
+  const current = await getTrips();
   const existingIds = new Set(current.map((t) => t.id));
 
-  // Sanera importerade: stöd både gammal (dates som sträng) och ny modell (objekt)
   const sanitized = parsed
     .filter((t) => t && typeof t === "object")
     .map((t) => {
@@ -151,7 +163,6 @@ export async function importTripsFromJsonFile() {
       const title = String(t.title ?? "Untitled trip");
       const notes = String(t.notes ?? "");
 
-      // Hantera dates: sträng -> lägg som notis, objekt -> normalisera
       let dates = null;
       let finalNotes = notes;
       if (typeof t.dates === "string") {
@@ -172,7 +183,9 @@ export async function importTripsFromJsonFile() {
   return { imported: sanitized.length };
 }
 
-// --- Nya helpers för foton ---
+//Photo Management
+
+//adds new photos to a trip. each photo is represented by its URI.
 export async function addTripPhotos(tripId, photoUris = []) {
   if (!Array.isArray(photoUris) || photoUris.length === 0) return [];
   const trips = await getTrips();
@@ -188,6 +201,7 @@ export async function addTripPhotos(tripId, photoUris = []) {
   return updated?.photos ?? [];
 }
 
+//removes photo from the trip by its URI
 export async function removeTripPhoto(tripId, uri) {
   const trips = await getTrips();
   const next = trips.map((t) => {

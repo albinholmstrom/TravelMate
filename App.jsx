@@ -82,7 +82,7 @@ export default function App() {
                 name = focused ? "settings" : "settings-outline";
               return <Ionicons name={name} size={size} />;
             },
-            sceneStyle: { backgroundColor: colors.bg }, // (RN 0.76+) if supported
+            sceneStyle: { backgroundColor: colors.bg },
             tabBarStyle: { backgroundColor: "#fff" },
           })}
         >

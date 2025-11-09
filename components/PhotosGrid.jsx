@@ -1,8 +1,13 @@
+//components/PhotosGrid.jsx
+// a photo grid component that displays a list of images in a 3-column grid layout.
+//each image is pressable, allowing the parent to handle actions such as opening a full-screen viewer.
+
 import React from "react";
 import { View, Image, FlatList, Pressable } from "react-native";
 import styles from "../styles/photos";
 
 export default function PhotosGrid({ photos = [], onPressPhoto }) {
+  //ensure photos is an array
   const data = Array.isArray(photos) ? photos : [];
 
   return (

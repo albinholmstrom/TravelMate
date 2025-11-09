@@ -1,4 +1,6 @@
 // /components/AppInput.jsx
+
+//a reusable styled input component for the app that supports both single-line and multi-line text input.
 import React from "react";
 import { TextInput, View } from "react-native";
 import { colors } from "../styles/global";
